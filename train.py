@@ -1,9 +1,32 @@
+from torchvision import models  
+import torchvision.models as models  
+import torch.nn as nn
+
 import torch
 from torch import optim
 from torch.nn import CrossEntropyLoss
 from torch.utils.data import DataLoader
 from model import ViolenceClassifier
 from data_loader import CustomDataset
+
+class ViolenceClassifier(nn.Module):  
+    def __init__(self, num_classes):  # 添加 num_classes 参数来指定输出层的大小  
+        super(ViolenceClassifier, self).__init__()  
+        # 使用 pretrained=True 来加载带有预训练权重的 ResNet18 模型  
+        self.resnet = models.resnet18(pretrained=True)  
+          
+        # 假设你想要修改 ResNet18 的最后一层以适应你的分类任务  
+        # 你可以通过修改全连接层来改变输出类别的数量  
+        num_ftrs = self.resnet.fc.in_features  # 获取原全连接层的输入特征数  
+        self.resnet.fc = nn.Linear(num_ftrs, num_classes)  # 替换全连接层  
+  
+    def forward(self, x):  
+        # 直接调用 ResNet18 的前向传播  
+        return self.resnet(x)  
+  
+# 实例化模型时，指定分类任务的类别数量  
+num_classes = 10  # 假设你有10个类别  
+model = ViolenceClassifier(num_classes)
 
 # 准确率计算函数
 def calculate_accuracy(model, data_loader, device):
@@ -79,8 +102,9 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True, num_workers=4)
     val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False, num_workers=4)
     
-    # 模型初始化
-    model = ViolenceClassifier()
+import torchvision.models as models
+# 假设 train_model 函数和 train_loader, val_loader 已经在其他地方定义好了
+
     
-    # 训练模型
-    train_model(model, train_loader, val_loader, epochs=10, lr=0.001)
+# 训练模型
+train_model(model, train_loader, val_loader, epochs=10, lr=0.001)
